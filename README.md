@@ -1,5 +1,6 @@
 [![Review Assignment Due Date](https://classroom.github.com/assets/deadline-readme-button-22041afd0340ce965d47ae6ef1cefeee28c7c493a6346c4f15d667ab976d596c.svg)](https://classroom.github.com/a/xoFPmgXs)
-# MLOps1
+## 👨‍🏫 프로젝트 소개
+## TMDB 데이터를 활용한 영화 평점 예측 서비스 & MLOps Flow 이해하기 <br> <br>
 ## Team
 <table>
   <tr>
@@ -27,3 +28,22 @@
     <td> <div align=center> <a href="https://github.com/lxlfoo"> <img alt="Github" src ="https://img.shields.io/badge/Github-181717.svg?&style=plastic&logo=Github&logoColor=white"/> </a> </div> </td>
     </tr>
 </table>
+
+## 💻 개발환경 및 도구
+
+## 📏 프로젝트 목적
+
+## 📁 프로젝트 구조
+
+## 🔨 프로젝트 시스템 아키텍처
+
+## ✍ 구현 기능
+
+## 🚨 문제 및 인사이트 도출
+
+## 🔎 프로젝트 한계 및 개선사항
+
+## 📍 회고
+
+## 🌐 기술스택
+[Fast-API] : 
