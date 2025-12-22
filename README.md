@@ -30,6 +30,12 @@
 </table>
 
 ## 💻 개발환경 및 도구
+- Python 3.
+- Amazon S3 ( Simple Storage Service)
+- Airflow
+- Docker
+- FastAPI
+
 
 ## 📏 프로젝트 목적
 
@@ -44,6 +50,12 @@
 ## 🔎 프로젝트 한계 및 개선사항
 
 ## 📍 회고
+👑 이진성 : 
 
+🙍 고아연 : 
+
+🙍 윤소정 : 
+
+🙍 한혜숙 : 
 ## 🌐 기술스택
 [Fast API] : https://fastapi.tiangolo.com/ko/tutorial/first-steps/
