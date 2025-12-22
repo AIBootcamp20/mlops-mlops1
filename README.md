@@ -46,4 +46,4 @@
 ## 📍 회고
 
 ## 🌐 기술스택
-[Fast-API] : 
+[Fast API] : https://fastapi.tiangolo.com/ko/tutorial/first-steps/
