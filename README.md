@@ -15,9 +15,9 @@
     <td> <div align=center> <b>한혜숙</b> </div> </td>
   </tr>
   <tr>
-    <td> <div align=center> <img width="1024" height="1024" alt="Image" src="https://github.com/user-attachments/assets/173c3970-a60c-49de-8b86-593894732cfd" /> </td> <!--이진성-->
-    <td> <div align=center> <img width="1024" height="1024" alt="Image" src="https://github.com/user-attachments/assets/3e52d169-0141-4dfb-b36b-004f87f01905" /> </td> <!--고아연-->
-    <td> <div align=center> <img width="1024" height="1024" alt="Image" src="https://github.com/user-attachments/assets/9e7c51c7-d3c8-4512-a3b2-0c35905e2256" /> </td> <!--윤소정-->
+    <td> <div align=center> <img width="1024" height="1024" alt="Image" src="https://github.com/user-attachments/assets/0630c3b4-e9e8-40e9-8909-650aa91ca71e" /> </td> <!--이진성-->
+    <td> <div align=center> <img width="1024" height="1024" alt="Image" src="https://github.com/user-attachments/assets/1f42b6d4-7d84-453b-ac51-e5439f420303" /> </td> <!--고아연-->
+    <td> <div align=center> <img width="1024" height="1024" alt="Image" src="https://github.com/user-attachments/assets/749df542-8d79-4512-abe5-c98abb13b31f" /> </td> <!--윤소정-->
     <td> <div align=center> <img width="1024" height="1024" alt="Image" src="https://github.com/user-attachments/assets/3bc0c7a8-3544-42f1-95d9-609e1e7ec69e" /> </td> <!--한혜숙-->
   </tr>
   <tr>
