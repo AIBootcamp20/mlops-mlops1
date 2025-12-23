@@ -19,7 +19,7 @@
     <td> <div align=center> <img width="1024" height="1024" alt="Image" src="https://github.com/user-attachments/assets/0630c3b4-e9e8-40e9-8909-650aa91ca71e" /> </td> <!--이진성-->
     <td> <div align=center> <img width="1024" height="1024" alt="Image" src="https://github.com/user-attachments/assets/1f42b6d4-7d84-453b-ac51-e5439f420303" /> </td> <!--고아연-->
     <td> <div align=center> <img width="1024" height="1024" alt="Image" src="https://github.com/user-attachments/assets/749df542-8d79-4512-abe5-c98abb13b31f" /> </td> <!--윤소정-->
-    <td> <div align=center> <img width="1024" height="1024" alt="Image" src="https://github.com/user-attachments/assets/fb7b70a2-24dc-4b8f-92be-4840e4393f61" /> </td> <!--한혜숙-->
+    <td> <div align=center> <img width="1024" height="1024" alt="Image" src="https://github.com/user-attachments/assets/f0ffe120-6645-4ff5-8de0-329a624906b5" /> </td> <!--한혜숙-->
   </tr>
   <tr>
     <td> <div align=center> <a href="https://github.com/wlstjd6524"> <img alt="Github" src ="https://img.shields.io/badge/Github-181717.svg?&style=plastic&logo=Github&logoColor=white"/> </a> </div> </td>
