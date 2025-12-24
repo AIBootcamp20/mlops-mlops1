@@ -30,22 +30,48 @@
 </table>
 
 ## 💻 개발환경 및 도구
-- Python 3.
-- Amazon S3 ( Simple Storage Service)
-- Airflow
+- Python 3.10.0
+- Pytonn Library
+  - Pandas
+  - Scikit-learn
+  - LightGBM 
+- Amazon S3 (Simple Storage Service)
+- Amazon Web Service (AWS) EC2
+- Apache Airflow
 - Docker
 - FastAPI
 
 
 ## 📏 프로젝트 목적
+MLOps PipeLine 구조와 TMDB 데이터를 활용한 영화 평점 예측 시스템 프로젝트 입니다.
+
+TMDB (The Movies DataBase) 데이터를 기반으로 앞으로 개봉할 새로운 영화에 대한 평점을 예측하여 반환하여 사용자에게 해당 결과를 제공하는 것을 목표로 설정했습니다.
 
 ## 📁 프로젝트 구조
 
 ## 🔨 프로젝트 시스템 아키텍처
 
 ## ✍ 구현 기능
+### 1. 데이터 자동 수집 과 전처리
+
+### 2. TMDB Data 를 기반으로 한 추천 모델
+- 선정모델 : LightGBM
+- 모델 선정 이유 :
+- 모델 학습 구조 :
+- 평가 지표 :
+
+### 3. AutomatedPipeLine
+
+### 4. 모델 서빙
 
 ## 🚨 문제 및 인사이트 도출
+### 1. Team MLOps Flow 의 잘못된 파악으로 역할군 정의 지연 문제
+
+### 2. 모델링 저장 확장자 관련 규칙 정의 문제
+
+### 3. FastAPI 입력데이터 Load 방식 문제
+
+### 4. 추론 Predict 값이 비정상적으로 튀는 문제
 
 ## 🔎 프로젝트 한계 및 개선사항
 
@@ -57,5 +83,6 @@
 🙍 윤소정 : 
 
 🙍 한혜숙 : 
+
 ## 🌐 기술스택
 [Fast API] : https://fastapi.tiangolo.com/ko/tutorial/first-steps/
