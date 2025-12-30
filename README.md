@@ -54,12 +54,12 @@ mlops/
 │  ├─ airflow/
 │  │  ├─ dags/
 │  │  │  └─ model_train_dag.py
-│  │  │     # 모델 학습 · 평가 · S3 저장을 담당하는 메인 DAG
+│  │  │     
 │  │  │
 │  │  ├─ logs/
 │  │  │  ├─ dag_id=model_training/
 │  │  │  │  └─ run_id=manual__2025-12-30T08_03_08.073557+00_00/
-│  │  │  │     # DAG 실행 이력 (모델 학습 버전 관리 및 추적 목적)
+│  │  │  │     
 │  │  │  │
 │  │  │  ├─ dag_processor_manager/
 │  │  │  │  └─ dag_processor_manager.txt
@@ -70,8 +70,8 @@ mlops/
 │  │  │     └─ latest/
 │  │  │        └─ model_train_dag.py
 │  │  │
-│  │  ├─ plugins/            # (확장 대비용, 현재는 비어 있음)
-│  │  ├─ src/                # (Airflow 내부 로직 확장 대비 디렉토리)
+│  │  ├─ plugins/           
+│  │  ├─ src/                
 │  │  ├─ .env
 │  │  ├─ .env.common
 │  │  ├─ Dockerfile
@@ -91,18 +91,18 @@ mlops/
 │  │  │     ├─ utils.py
 │  │  │     ├─ main.py
 │  │  │     └─ __init__.py
-│  │  │     # 실제 모델 학습 · 평가 · S3 저장 로직
+│  │  │    
 │  │  │
 │  │  ├─ Dockerfile
 │  │  └─ requirements-train.txt
 │  │
 │  └─ webserver_config.py
-│     # Airflow 웹서버 설정
+│    
 │
 ├─ data-prepare/
 │  ├─ dags/
 │  │  └─ collector_dag.py
-│  │  │  # 데이터 수집 및 전처리 파이프라인 DAG
+│  │  │  
 │  │  │
 │  ├─ data_prepare/
 │  │  ├─ collector.py
@@ -116,7 +116,7 @@ mlops/
 │
 ├─ modeling/
 │  ├─ src/
-│  │  └─ ...                # train/src/model 구조와 동일 (실험용)
+│  │  └─ ...                
 │  │
 │  ├─ Dockerfile
 │  ├─ docker-compose.yml
@@ -133,13 +133,13 @@ mlops/
    │  ├─ schemas.py
    │  └─ templates/
    │     └─ results.html
-   │     # FastAPI 기반 모델 서빙 애플리케이션
+   │     
    │
    ├─ models/
    │  ├─ metadata.json
    │  ├─ metrics.json
    │  └─ model_bundle.joblib
-   │  # S3에서 동기화된 최신 모델 번들
+   │  
    │
    ├─ Dockerfile
    ├─ docker-compose.yml
