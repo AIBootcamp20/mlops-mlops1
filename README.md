@@ -158,9 +158,65 @@ mlops/
 ```
 
 ## 🔨 프로젝트 시스템 아키텍처
+<img width="1349" height="750" alt="Image" src="https://github.com/user-attachments/assets/582dc0dd-3166-4b5b-bb8d-e4dc6c1a8980" />
 
 ## ✍ 구현 기능
+### 0. EC2 서버 셋팅
+해당 리눅스 Ubuntu 기반 서버는 향후 팀원들이 구현한 PipeLine 이 로컬에서 도는걸로 국한되는게 아니라 서버환경에서도 병렬적으로 작업했던 모든 PipeLine 이 돌아가는지 확인하기 위한 서버를 셋팅하였습니다.
+각 파이프라인 마다 인스턴스를 하나씩 잡고 해당 환경에 맞는 Linux System 을 이용하여 기본 환경만 구축을 진행하였습니다.
+
+EC2 서버의 보안그룹에는 프로젝트의 다른 팀원들의 접근성을 위해 IP Section 은 모든 IP 가 참여할 수 있게 열어놨으며, 이 문제점은 보안에 굉장히 취약하므로 향후 화이트리스트를 적용하여 보안을 강화해야할 의무가 있습니다.
+또한 Airflow, FastAPI 의 접근을 위해 8000, 8080 TCP Port 를 추가하였습니다.
+
+다음으로 Airflow 의 스케줄링을 위해 인스턴스가 켜지자마자 docker file 이 자동으로 Build 할 수 있도록 자동화 System 까지 추가로 진행하였습니다.
+
 ### 1. 데이터 자동 수집 과 전처리
+TMDB Discover API 를 이용해 학습데이터와 추론데이터를 매일 수집합니다.
+
+데이터 누출 방지를 위해 학습데이터와 추론데이터는 완전 분리되어 다른 기간을 수집하며, 매일 새로운 데이터로 모델을 학습시킬 수 있도록 데이터를 날짜변 versioning 하여 적재합니다.
+
+- 학습데이터 : 2024년부터 매일 10년 단위로 10,000건의 데이터를 과거로 거슬러 올라가며 적재 (ex : 2015~2024 > 2005~2014 > 1995~2024..)
+- 추론데이터 : 2025년부터 6개월 이후 개봉예정작까지 총 1년 6개월을 기준으로 매일 새로운 데이터 추가
+
+원본은 raw 폴더에 json 으로 변경 없이 저장되고 자동으로 전처리 과정을 거쳐 preprocess 폴더에 csv 파일 형태로 저장됩니다.
+
+<AWS S3 디렉토리 구조>
+```
+mlops1-s3-v1/
+├─ raw/
+│  ├─ train/
+│  │  └─ train_YYYYMMDD.json
+│  └─ inference/
+│     └─ inf_YYYYMMDD.json
+│
+└─ preprocess/
+   ├─ train/
+   │  └─ train_YYYYMMDD.csv
+   └─ inference/
+      └─ inf_YYYYMMDD.csv
+
+```
+
+<프로그램 목록>
+ - collector_dag.py: Airflow 실행
+ - main.py: 진입점
+ - collector.py: 데이터수집
+ - preprocessor.py: 전처리
+ - load_test.py: 데이터로딩 샘플코드
+
+Data PipeLine 은 Airflow 스케줄러를 통해 사람의 개입 없이 매일 자동으로 AWS S3 에 수집됩니다.
+학습데이터와 추론데이터의 task 가 분리되어 학습데이터 수집 성공시 추론데이터가 수집됩니다.
+
+스케줄링 주기 : daily (크론탭 0 0 * * *) UTC 기준 (한국시간 9:00 am)
+
+만약 서버 중단이나 오류 등으로 누락된 날이 발생하면 서버재기동시 자동으로 backfill이 적용됩니다.
+데이터 정합성에 문제가 없도록 날짜별로 job이 여러개 병렬로 돌아 누락된 날부터 데이터를 다시 쓰며 멱등성(Idempotency)을 검증합니다.
+(ex: 오늘이 30일이고 28일부터 서버 중단시 Airflow를 재기동하면 28일, 29일, 30일치 job이 각각 날짜에 맞게 자동 실행 및 S3 적재)
+
+AWS EC2에서 독자적인 인스턴스로 실행되며
+Dockerfile을 이용해 data pipeline용 docker를 분리했고
+Airflow는 이 docker image를 이용해 가상환경으로 실행됩니다.
+Airflow는 3.1.5 버전을 사용하여 개발편의성을 높였습니다.
 
 ### 2. TMDB Data 를 기반으로 한 추천 모델
 - 선정모델 : LightGBM
@@ -169,8 +225,74 @@ mlops/
 - 평가 지표 :
 
 ### 3. AutomatedPipeLine
+모델링 과정을 통해 나온 모델 과 S3에 적재된 데이터를 가져와서 학습 -> 평가 -> 결과 아티팩트 저장 의 흐름을 자동화하는 PipeLine 을 구현했습니다.
+
+전체적인 PipeLine 은 다음과 같습니다.
+
+```
+Airflow Scheduler Start -> DockerOperator Execution -> mlops-train Docker Container Execution -> S3에 있는 최신 학습 Data Load -> Model 학습 -> Model 평가 -> Model Result(Model bundle + metadata) 생성 -> S3에 Model Result UpLoad
+```
+
+에어플로우 실행과 학습 로직은 서로 독립적인 Docker Image 에서 실행되며, 모델 학습을 수행하는 도커에서 command 명령으로 model/main.py 를 실행하며 Python 코드를 직접 실행시키지 않습니다.
+```
+image = "mlops-train:v1"
+```
+```
+command = "python src/model/main.py"
+```
+
+S3에 있는 학습 데이터는 S3 Prefix를 기준으로 가장 최신 csv 파일을 선택하며,
+서빙 코드 변경 없이 실행되도록 서빙 코드 디렉토리 구조 기반으로 최신 상태만 유지하도록 진행하였습니다.
+서빙 시스템은 최신 Model Bundle 과 Metadata 만 참고하면 되기에 작동에는 문제가 없으나 데이터 관리를 위해 향후 날짜별로 쌓는 구조로 업데이트 하면 좋을 것 같습니다.
+
+환경 변수는 역할에 따라 분리되었으며, 스케줄러는 매일(@daily, UTC 기준 한국시간 09:00 am) 작동하며, 과거 데이터는 실행하지 않도록 하였습니다. 일시적으로 실행이 실패할 시 1번 재시도를 진행하게 됩니다.
+```
+airflow/.env.common # AWS 인증 정보, 공통 설정
+train/.env.train # 학습 전용 설정
+```
+```
+schedule = "@daily"
+catchup = False
+retries = 1
+```
 
 ### 4. 모델 서빙
+Airflow 를 통해 학습 및 저장된 최신 모델을 S3에서 동기화하여, FastAPI 기반 API 서버를 통해 실시간 추론 결과를 제공하는 서빙 환경을 구현하였습니다.
+FastAPI 서버는 EC2 상 Docker Compose 로 실행되며, 서버 기동 시 S3에 저장된 최신 Model Bundle 을 자동으로 Load 하여 서빙에 활용하게 됩니다.
+
+우선 FastAPI 서버가 기동 시, S3에 저장된 최신 모델 번들을 불러오며 Airflow 파이프라인을 통해 생성된 모델을 항상 최신 상태로 서빙하게 됩니다.
+모델이 최신 상태인지 확인하는 방법은 S3 저장소에 찍혀있는 model_bundle 의 시간값을 확인 할 수 있고, 다음 CLI Log Checking를 통해도 확인이 가능합니다.
+
+```
+[MODEL SYNC] downloading s3://mlops1-s3-v1/bundle/latest/model_bundle.joblib
+[MODEL SYNC] done
+```
+
+또한 REST API 기반으로 추론 기능을 수행합니다. JSOn 형태의 입력 데이터를 받아 모델을 추론 수행을 진행하며, Pydantic 기반으로 스키마 검증을 통해 입력 데이터의 안정성을 확보합니다.
+또한 예측 결과를 JSON 및 HTML 형태로 제공하는데, 사용자의 접근성을 위해 HTML 형태로 제공하는 것에 조금 더 초점을 두었습니다.
+
+```
+# Example Request , json
+{
+  "title": "Example Movie",
+  "release_year": 2024,
+  "popularity": 123.4,
+  "vote_count": 560
+}
+
+# Example Response
+{
+  "prediction": 7.82
+}
+```
+
+Swagger UI 기반으로 테스트 환경을 제공하며 http://<FastAPI_EC2_IP>:8000/docs 를 통해 해당 endpoint 에 진입하여 key value 값을 전달하여 별도의 클라이언트 없이 API 테스트가 가능합니다.
+
+Jinja2 Template Engine 을 사용하여 사용자에게 조금 더 맞춤으로 제공할 수 있는 HTML 페이지로 렌더링 하여 제공하게 됩니다.
+
+<img width="1897" height="911" alt="Image" src="https://github.com/user-attachments/assets/e9ea34b1-8f2b-4923-af71-a9c3bb49bced" /> 
+
+또한 초반 리눅스 서버 셋팅으로 인해 EC2 인스턴스 실행시 systemd 를 통해 자동으로 Docker Compose 가 실행되며 FastAPI 서버가 무중단 기동이 가능하도록 설정하였습니다.
 
 ## 🚨 문제 및 인사이트 도출
 ### 1. Team MLOps Flow 의 잘못된 파악으로 역할군 정의 지연 문제
@@ -295,9 +417,15 @@ MLOps는 혼자 공부했으면 절대 지금처럼 단기간에 습득할 수 �
 - 협업방식 : Slack
 - 미팅방식 : 전 날 자정 전에 내일 회의하면 좋을 내용에 대한 부분 정리해서 협업 커뮤니케이션 애플리케이션(Slack)에 전송, 다음 날 출석체크 후 09:00 에 곧바로 스레드를 활용한 개인의견 작성 및 회의 진행
 
-#### 📋 일정관리 툴
+<img width="1920" height="1920" alt="Image" src="https://github.com/user-attachments/assets/2fadfb83-d73e-4d1f-b78d-f498fa42ba30" />
+
+#### 📋 일정 및 프로젝트 관리 툴
+- Notion
+<img width="1658" height="893" alt="Image" src="https://github.com/user-attachments/assets/cd4b8fb1-7f8b-4d90-9ed5-4e24f5893ca0" />
 
 ## 🌐 기술스택
-[Fast API] : https://fastapi.tiangolo.com/ko/tutorial/first-steps/
-[Docker] : https://www.hostinger.com/kr/tutorials/what-is-docker?utm_campaign=Generic-Tutorials-DSA|NT:Se|Lang:KR|LO:KR&utm_medium=ppc&gad_source=1&gad_campaignid=23281809969&gbraid=0AAAAADMy-hYbi423OfY9fiAiGlw_D9uWT&gclid=CjwKCAiAjc7KBhBvEiwAE2BDOTHIv6CEVY6ayhwrpxpzo_6hmrH6-oUIHQ5lKd42oblywGVEBbTByhoCu3IQAvD_BwE
-[EC2] : https://docs.aws.amazon.com/ko_kr/AWSEC2/latest/UserGuide/EC2_GetStarted.html
+[Fast API] : https://fastapi.tiangolo.com/ko/tutorial/first-steps/ 
+
+[Docker] : https://www.hostinger.com/kr/tutorials/what-is-docker?utm_campaign=Generic-Tutorials-DSA|NT:Se|Lang:KR|LO:KR&utm_medium=ppc&gad_source=1&gad_campaignid=23281809969&gbraid=0AAAAADMy-hYbi423OfY9fiAiGlw_D9uWT&gclid=CjwKCAiAjc7KBhBvEiwAE2BDOTHIv6CEVY6ayhwrpxpzo_6hmrH6-oUIHQ5lKd42oblywGVEBbTByhoCu3IQAvD_BwE 
+
+[EC2] : https://docs.aws.amazon.com/ko_kr/AWSEC2/latest/UserGuide/EC2_GetStarted.html 
