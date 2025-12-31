@@ -158,7 +158,7 @@ mlops/
 ```
 
 ## 🔨 프로젝트 시스템 아키텍처
-<img width="1349" height="750" alt="Image" src="https://github.com/user-attachments/assets/582dc0dd-3166-4b5b-bb8d-e4dc6c1a8980" />
+<img width="1536" height="1024" alt="Image" src="https://github.com/user-attachments/assets/01c0a0d2-8cec-4e8f-9ed1-d5da526fd0c6" />
 
 ## ✍ 구현 기능
 ### 0. EC2 서버 셋팅
