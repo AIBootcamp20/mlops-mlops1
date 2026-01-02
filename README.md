@@ -29,6 +29,9 @@
     </tr>
 </table>
 
+## 👨‍👩‍👧‍👧 역할
+<img width="1251" height="494" alt="Image" src="https://github.com/user-attachments/assets/6b8397d0-a02f-4ac0-a401-4f5e602c0502" />
+
 ## 💻 개발환경 및 도구
 - Python 3.10.0
 - Pytonn Library
